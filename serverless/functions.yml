@@ -1,0 +1,18 @@
+videoHandling:
+    environment:
+      BUCKET_NAME: !Ref 'VideoUploadBucket'
+    iamRoleStatementsName: ${self:service}-${self:provider.stage}-video-handling
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - s3:*      
+        Resource: !Join ['', [!GetAtt 'VideoUploadBucket.Arn', '/*']]
+    handler: src/main.handler
+    layers: [arn:aws:lambda:us-east-1:103856872617:layer:ffmpeg:1]
+    events:
+      - http: 
+          method: Post
+          path: /video-handling
+          cors: true
+          
+

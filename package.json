@@ -1,0 +1,53 @@
+{
+  "name": "video-handling",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "sls": "sls",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon",
+    "dev": "nodemon",
+    "build": "npm run sls package",
+    "webpack": "npm run sls webpack",
+    "sls:deploy": "npm run sls deploy",
+    "sls:undeploy": "npm run sls remove"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "description": "",
+  "devDependencies": {
+    "@types/webpack-node-externals": "^2.5.3",
+    "copy-webpack-plugin": "^11.0.0",
+    "eslint-loader": "^4.0.2",
+    "nodemon": "1.19.4",
+    "ts-loader": "9.3.1",
+    "ts-node": "^10.8.1",
+    "tsconfig-paths": "^4.0.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.2",
+    "typescript": "^4.7.4",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-node-externals": "^3.0.0",
+    "webpack-plugin-copy": "^1.0.1"
+  },
+  "dependencies": {
+    "@types/fluent-ffmpeg": "^2.1.20",
+    "@types/node": "^18.0.0",
+    "aws-lambda": "^1.0.7",
+    "aws-sdk": "2.1161.0",
+    "dotenv": "^16.0.1",
+    "dotenv-cli": "^5.1.0",
+    "ffmpeg-stream": "^0.7.0",
+    "ffmpeg-ts": "^1.0.15",
+    "fluent-ffmpeg": "^2.1.2",
+    "middy": "^0.36.0",
+    "pure-uuid": "^1.6.2",
+    "readable-stream": "^4.0.0",
+    "s3-url-parser": "^1.0.3",
+    "serverless": "^3.19.0",
+    "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-layers": "^2.5.4",
+    "serverless-webpack": "^5.7.1"
+  }
+}

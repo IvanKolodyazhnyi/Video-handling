@@ -1,0 +1,19 @@
+# production
+/build
+
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+/.idea
+
+.serverless
+.webpack
+node_modules
+.env
+_warmup
+serverless-output.json
+categories.json
