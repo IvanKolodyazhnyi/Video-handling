@@ -17,3 +17,5 @@ node_modules
 _warmup
 serverless-output.json
 categories.json
+
+readme.md

@@ -22,79 +22,93 @@ import { RequestBody, Response } from "./types";
 import { getEnvVar } from "./utils/env";
 
 
-import fs from "fs";
+import fs, { existsSync } from "fs";
 
 import { APIGatewayResponse } from "./utils/aws";
+import { compact } from "lodash";
 
 const { BUCKET_NAME } = process.env;
 
 const s3 = new AWS.S3();
 
-export const handler = async (
-  event
-): Promise<APIGatewayResponse<Response>> => {
+module.exports.handler = async (event) => {
 
   try {
-    const body = JSON.parse(event.body);
+    console.log(event)
 
-    const videoUrl = body.url;
+    const videoName = event.Records[0].s3.object.key
 
-    const { bucket, region, key } = s3ParseUrl(`${videoUrl}`);
+    const bucketName = event.Records[0].s3.bucket.name
 
-    const videoName = key.split(".");
+    const exist = videoName.includes("_changed.mp4");
 
-    const videoChangedName = `${videoName[0]}_changed.mp4`;
+    if (exist == false) {
 
-    let objectToConvert = ffmpeg(videoUrl).duration(90);
-
-    await new Promise(async (resolve, reject) => {
-      ffmpeg.ffprobe(videoUrl, (err, metadata) => {
-        if (err) {
-          return reject(err);
-        }
-        const width = metadata.streams[0].width;
-        const height = metadata.streams[0].height;
-
-        if (width > 800 && height < 800) {
-          objectToConvert.size("800x?");
-        }
-        if (height > 800 && width < 800) {
-          objectToConvert.size("?x800");
-        }
-        if (height > 800 && width > 800) {
-          objectToConvert.size("800x800");
-        }
-
-        objectToConvert.save("/tmp/outputVideo.mp4").on("end", () => {
-
-          resolve(true);
-
+      const video = await s3.getObject({
+        Bucket: bucketName,
+        Key: videoName
+        }).createReadStream();
+  
+      const videoUrl = s3.getSignedUrl("getObject", {
+              Bucket: bucketName,
+              Key: videoName,
+            });
+      const videoNameChanged = videoName.split(".");
+  
+      const videoChangedName = `${videoNameChanged[0]}_changed.mp4`;
+  
+      let objectToConvert = ffmpeg(videoUrl).duration(90);
+  
+      await new Promise(async (resolve, reject) => {
+        ffmpeg.ffprobe(videoUrl, (err, metadata) => {
+          if (err) {
+            return reject(err);
+          }
+          const width = metadata.streams[0].width;
+          const height = metadata.streams[0].height;
+  
+          if (width > 800 && height < 800) {
+            objectToConvert.size("800x?");
+          }
+          if (height > 800 && width < 800) {
+            objectToConvert.size("?x800");
+          }
+          if (height > 800 && width > 800) {
+            objectToConvert.size("800x800");
+          }
+  
+          objectToConvert.save("/tmp/outputVideo.mp4").on("end", () => {
+  
+            resolve(true);
+  
+          });
         });
       });
-    });
-    const videoBuffer = fs.readFileSync("/tmp/outputVideo.mp4");
-    const uploadVideo = await s3
-      .putObject({
+      const videoBuffer = fs.readFileSync("/tmp/outputVideo.mp4");
+      const uploadVideo = await s3
+        .putObject({
+          Bucket: BUCKET_NAME,
+          Key: videoChangedName,
+          Body: videoBuffer,
+        })
+        .promise();
+      
+      const uploadUrl = s3.getSignedUrl("getObject", {
         Bucket: BUCKET_NAME,
         Key: videoChangedName,
-        Body: videoBuffer,
-      })
-      .promise();
-    
-    const uploadUrl = s3.getSignedUrl("getObject", {
-      Bucket: BUCKET_NAME,
-      Key: videoChangedName,
-    });
+      });
 
-    const response: APIGatewayResponse<Response> = {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        changedVideoUrl: uploadUrl,
-      }),
-    };
-    
-    return response;
+      const response: APIGatewayResponse<Response> = {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          changedVideoUrl: uploadUrl,
+        }),
+      };
+      
+      return response;
+
+    }
 
   } catch (e) {
     console.log(e);

@@ -8,11 +8,11 @@ videoHandling:
           - s3:*      
         Resource: !Join ['', [!GetAtt 'VideoUploadBucket.Arn', '/*']]
     handler: src/main.handler
-    layers: [arn:aws:lambda:us-east-1:103856872617:layer:ffmpeg:1]
+    layers: [ !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:ffmpeg:1' ]
+
     events:
-      - http: 
-          method: Post
-          path: /video-handling
-          cors: true
-          
+      - s3:
+          bucket: !Ref 'VideoUploadBucket'
+          existing: true
+          event: s3:ObjectCreated:*
 
