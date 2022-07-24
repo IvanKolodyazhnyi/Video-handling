@@ -26,8 +26,8 @@ provider:
     memorySize: 1024
     timeout: 900
     versionFunctions: false
-    deploymentBucket:
-        name: ${self:custom.deploymentBucketName}
+    # deploymentBucket:
+    #     name: ${self:custom.deploymentBucketName}
 
 custom:
     

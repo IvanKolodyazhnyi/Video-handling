@@ -34,7 +34,6 @@ const s3 = new AWS.S3();
 module.exports.handler = async (event) => {
 
   try {
-    console.log(event)
 
     const videoName = event.Records[0].s3.object.key
 
@@ -43,12 +42,6 @@ module.exports.handler = async (event) => {
     const exist = videoName.includes("_changed.mp4");
 
     if (exist == false) {
-
-      const video = await s3.getObject({
-        Bucket: bucketName,
-        Key: videoName
-        }).createReadStream();
-  
       const videoUrl = s3.getSignedUrl("getObject", {
               Bucket: bucketName,
               Key: videoName,
